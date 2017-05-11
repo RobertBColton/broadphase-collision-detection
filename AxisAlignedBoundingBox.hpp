@@ -21,21 +21,21 @@ public:
 	int getWidth() const { return width; }
 	int getHeight() const { return height; }
 
-	int setPosition(const int x, const int y) {
+	void setPosition(const int x, const int y) {
 		this->x = x;
 		this->y = y;
 	}
 
-	int setX(const int x) { this->x = x; }
-	int setY(const int y) { this->y = y; }
+	void setX(const int x) { this->x = x; }
+	void setY(const int y) { this->y = y; }
 
-	int setSize(const int width, const int height) {
+	void setSize(const int width, const int height) {
 		this->width = width;
 		this->height = height;
 	}
 
-	int setWidth(const int width) { this->width = width; }
-	int setHeight(const int height) { this->height = height; }
+	void setWidth(const int width) { this->width = width; }
+	void setHeight(const int height) { this->height = height; }
 
 	bool intersectsPoint(const int x, const int y) const {
 		return x > this->x && x < this->x + this->width &&
@@ -43,8 +43,8 @@ public:
 	}
 
 	bool intersectsRectangle(const int x, const int y, const int width, const int height) const {
-		return !(x > this->x + this->width || x + width < this->x ||
-				y > this->y + this->height || y + height < this->y);
+		return (x < this->x + this->width && x + width > this->x &&
+				y < this->y + this->height && y + height > this->y);
 	}
 
 	bool intersectsAABB(const AABB &aabb) const {

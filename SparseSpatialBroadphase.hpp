@@ -99,9 +99,8 @@ public:
 				const auto &proxy = *proxyIt;
 				for (auto otherIt = ++proxyIt; otherIt != cell.second.cend(); ++otherIt) {
 					const auto &other = *otherIt;
-					if (proxy.second.intersectsAABB(other.second)) {
+					if (proxy.second.intersectsAABB(other.second))
 						collisionPairs.insert(CollisionPair(proxy.first, other.first));
-					}
 				}
 			}
 		}

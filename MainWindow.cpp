@@ -29,10 +29,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	// create the player
 	player = scene->addRect(0, 0, 50, 50, QPen(Qt::black), Qt::green);
-	player->setPos(75, 75);
 
 	// create some random objects
-	for (size_t i = 0; i < 2500; ++i) {
+	for (size_t i = 0; i < 5000; ++i) {
 		QGraphicsRectItem* object = scene->addRect(
 			0, 0, randomInt(10, 25), randomInt(10, 25));
 		object->setPos(
@@ -66,6 +65,8 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::updateGame() {
+	player->setPos(view->mapFromGlobal(QCursor::pos() - QPoint(25, 25)));
+
 	// add the player to the broadphase
 	broadphase.addRectangle(
 		player->x(),
