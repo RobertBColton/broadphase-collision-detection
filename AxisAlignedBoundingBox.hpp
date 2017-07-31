@@ -54,7 +54,7 @@ public:
 	friend inline bool operator==(AABB const& lhs, AABB const& rhs)
 	{
 		return (lhs.x == rhs.x) && (lhs.y == rhs.y) &&
-			(lhs.width == rhs.width) && (lhs.height == lhs.height);
+			(lhs.width == rhs.width) && (lhs.height == rhs.height);
 	}
 };
 
