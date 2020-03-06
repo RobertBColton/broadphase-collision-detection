@@ -18,6 +18,7 @@ SOURCES += main.cpp \
 
 HEADERS  += \
     AxisAlignedBoundingBox.hpp \
+    Broadphase.h \
     SparseSpatialBroadphase.hpp \
     MainWindow.hpp
 

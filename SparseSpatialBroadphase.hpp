@@ -17,7 +17,7 @@
 
 struct Point {
 	int x, y;
-	Point(int x, int y) : x(x), y(y) {};
+	Point(int x, int y) : x(x), y(y) {}
 
 	friend inline bool operator==(Point const& lhs, Point const& rhs)
 	{

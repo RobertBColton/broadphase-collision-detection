@@ -1,4 +1,5 @@
 #include "MainWindow.hpp"
+#include "Broadphase.h"
 #include <QtWidgets>
 
 int main(int argc, char *argv[])
@@ -12,9 +13,13 @@ int main(int argc, char *argv[])
 	QPushButton *bmButton = new QPushButton("Benchmark");
 	vbl->addWidget(bmButton);
 
-	QList<QString> bpis = {"K-D Tree", "K-D-B Tree", "PR Quadtree"};
+	QList<QPair<QString, QSharedPointer<Broadphase>>> bpis = {
+		{"K-D Tree",nullptr},
+		{"K-D-B Tree",nullptr},
+		{"PR Quadtree",nullptr}
+	};
 	foreach (auto bp, bpis) {
-		QPushButton *bpButton = new QPushButton(bp);
+		QPushButton *bpButton = new QPushButton(bp.first);
 		vbl->addWidget(bpButton);
 	}
 
