@@ -42,6 +42,22 @@ public:
 				y > this->y && y < this->y + this->height;
 	}
 
+	bool point_in_circle(const int x, const int y, const int cx, const int cy, const int radius) {
+		int xd = cx - x;
+		int yd = cy - y;
+		return (x*x + y*y) < radius;
+	}
+
+	bool intersectsCircle(const int x, const int y, const int radius) {
+		return (
+			intersectsPoint(x, y) ||
+			point_in_circle(this->x, this->y, x, y, radius) ||
+			point_in_circle(this->x+width, this->y, x, y, radius) ||
+			point_in_circle(this->x, this->y+height, x, y, radius) ||
+			point_in_circle(this->x+width, this->y+height, x, y, radius)
+		);
+	}
+
 	bool intersectsRectangle(const int x, const int y, const int width, const int height) const {
 		return (x < this->x + this->width && x + width > this->x &&
 				y < this->y + this->height && y + height > this->y);
