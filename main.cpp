@@ -1,5 +1,7 @@
 #include "MainWindow.hpp"
 #include "Broadphase.h"
+#include "Quadtree.h"
+
 #include <QtWidgets>
 
 int main(int argc, char *argv[])
@@ -14,9 +16,10 @@ int main(int argc, char *argv[])
 	vbl->addWidget(bmButton);
 
 	QList<QPair<QString, QSharedPointer<Broadphase>>> bpis = {
-		{"K-D Tree",nullptr},
-		{"K-D-B Tree",nullptr},
-		{"PR Quadtree",nullptr}
+		{"K-D Tree",QSharedPointer<Broadphase>(new Quadtree())},
+		{"K-D-B Tree",QSharedPointer<Broadphase>(new Quadtree())},
+		{"PR Quadtree",QSharedPointer<Broadphase>(new Quadtree())},
+		{"Quadtree",QSharedPointer<Broadphase>(new Quadtree())},
 	};
 	foreach (auto bp, bpis) {
 		QPushButton *bpButton = new QPushButton(bp.first);

@@ -13,8 +13,9 @@ class AABB {
 	int x, y, width, height;
 
 public:
-	AABB();
-	AABB(int x, int y, int width, int height) : x(x), y(y), width(width), height(height) {};
+	AABB(): x(0), y(0), width(0), height(0) {}
+	AABB(int width, int height) : x(0), y(0), width(width), height(height) {}
+	AABB(int x, int y, int width, int height) : x(x), y(y), width(width), height(height) {}
 
 	int getX() const { return x; }
 	int getY() const { return y; }
@@ -56,6 +57,15 @@ public:
 			point_in_circle(this->x, this->y+height, x, y, radius) ||
 			point_in_circle(this->x+width, this->y+height, x, y, radius)
 		);
+	}
+
+	bool containsRectangle(const int x, const int y, const int width, const int height) const {
+		return (x > this->x && x + width < this->x + this->width &&
+				y > this->y && y + height < this->y + this->height);
+	}
+
+	bool containsAABB(const AABB &aabb) const {
+		return containsRectangle(aabb.x, aabb.y, aabb.width, aabb.height);
 	}
 
 	bool intersectsRectangle(const int x, const int y, const int width, const int height) const {

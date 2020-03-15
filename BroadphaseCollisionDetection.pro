@@ -14,11 +14,13 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    MainWindow.cpp
+    MainWindow.cpp \
+    Quadtree.cpp
 
 HEADERS  += \
     AxisAlignedBoundingBox.hpp \
     Broadphase.h \
+    Quadtree.h \
     SparseSpatialBroadphase.hpp \
     MainWindow.hpp
 
