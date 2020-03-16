@@ -78,7 +78,7 @@ class Quadtree : public Broadphase
 	void buildTree(Node* root, int cd = 0);
 
 public:
-	Quadtree(int width = 1000, int height = 1000, int depth = 4);
+	Quadtree(int width = 1024, int height = 1024, int depth = 4);
 	Proxy* addProxy(AABB aabb, void* userdata = 0) override;
 	void removeProxy(Proxy* proxy) override;
 	void clear() override;

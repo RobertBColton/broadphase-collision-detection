@@ -23,9 +23,11 @@ int main(int argc, char *argv[])
 	};
 	foreach (auto bp, bpis) {
 		QPushButton *bpButton = new QPushButton(bp.first);
-		bpButton->connect(bpButton, &QAbstractButton::clicked, [&](){
+		bpButton->connect(bpButton, &QAbstractButton::clicked, [=](){
 			auto w = new MainWindow(bp.second.get());
+			w->setWindowTitle(bp.first);
 			w->setAttribute(Qt::WA_ShowModal, true);
+			w->setAttribute(Qt::WA_DeleteOnClose, true);
 			w->show();
 		});
 		vbl->addWidget(bpButton);

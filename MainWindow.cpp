@@ -1,15 +1,6 @@
 #include "MainWindow.hpp"
 #include "Broadphase.h"
 
-#include <QtWidgets>
-
-#include <vector>
-
-std::vector<QGraphicsRectItem*> objects;
-QGraphicsEllipseItem* player;
-qreal playerRadius = 50.0f;
-QGraphicsView *view;
-
 int randomInt(int low, int high) {
 	return qrand() % ((high + 1) - low) + low;
 }
@@ -20,7 +11,7 @@ MainWindow::MainWindow(Broadphase *broadphase, QWidget *parent) :
 	QTime time = QTime::currentTime();
 	qsrand((uint)time.msec());
 
-	QGraphicsScene *scene = new QGraphicsScene(0, 0, 1000, 1000, this);
+	QGraphicsScene *scene = new QGraphicsScene(0, 0, 1024, 1024, this);
 	scene->setItemIndexMethod(QGraphicsScene::NoIndex);
 
 	// create the player
@@ -40,8 +31,8 @@ MainWindow::MainWindow(Broadphase *broadphase, QWidget *parent) :
 
 	// create a background grid that shows the buckets
 	QPen gridPen(Qt::black, 5);
-	qreal cellWidth = 62.5f;// broadphase.getCellWidth();
-	qreal cellHeight = 62.5f;// broadphase.getCellHeight();
+	qreal cellWidth = 64;// broadphase.getCellWidth();
+	qreal cellHeight = 64;// broadphase.getCellHeight();
 	for (qreal x = 0; x <= scene->width(); x += cellWidth)
 		scene->addLine(x, 0, x, scene->height(), gridPen);
 	for (qreal y = 0; y <= scene->height(); y += cellHeight)
@@ -51,7 +42,7 @@ MainWindow::MainWindow(Broadphase *broadphase, QWidget *parent) :
 	connect(timer, SIGNAL(timeout()), this, SLOT(updateGame()));
 	timer->start(0);
 
-	view = new QGraphicsView(scene);
+	view = new QGraphicsView(scene, this);
 	view->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
 
 	this->setCentralWidget(view);

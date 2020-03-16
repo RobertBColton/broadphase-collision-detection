@@ -1,8 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
+#include <QtWidgets>
 #include "Broadphase.h"
+
+#include <vector>
 
 namespace Ui {
 class MainWindow;
@@ -21,6 +23,10 @@ public slots:
 
 private:
 	Broadphase *broadphase;
+	std::vector<QGraphicsRectItem*> objects;
+	QGraphicsEllipseItem *player;
+	qreal playerRadius = 50.0f;
+	QGraphicsView *view;
 };
 
 #endif // MAINWINDOW_HPP
