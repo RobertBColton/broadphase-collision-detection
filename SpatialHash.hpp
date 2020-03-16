@@ -34,13 +34,6 @@ class SpatialHash : public Broadphase {
 		}
 	};
 
-	struct ProxyHash {
-		inline std::size_t operator()(const Proxy &v) const {
-			uintptr_t ad = (uintptr_t) &v;
-			return (size_t) ((13*ad) ^ (ad >> 15));
-		}
-	};
-
 	struct CollisionPairHash {
 		inline std::size_t operator()(const CollisionPair &v) const {
 			uintptr_t ad = (uintptr_t) &v;
@@ -49,7 +42,7 @@ class SpatialHash : public Broadphase {
 	};
 
 	int cell_width, cell_height;
-	std::unordered_map<Point, std::unordered_set<Proxy*, ProxyHash>, PointHash> cells;
+	std::unordered_map<Point, std::unordered_set<Proxy*>, PointHash> cells;
 
 public:
 	SpatialHash() : cell_width(64), cell_height(64) {};
@@ -108,6 +101,7 @@ public:
 				cells[Point(i, ii)].erase(proxy);
 			}
 		}
+		delete proxy;
 	}
 
 	std::set<Proxy*> queryRange(const int x, const int y, const int radius) {
@@ -141,6 +135,9 @@ public:
 	}
 
 	void clear() {
+		for (auto cell : cells)
+			for (auto proxy : cell.second)
+				delete proxy;
 		cells.clear();
 	}
 };

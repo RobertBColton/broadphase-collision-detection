@@ -28,6 +28,7 @@ Broadphase::Proxy* Quadtree::addProxy(AABB aabb, void* userdata) {
 
 void Quadtree::removeProxy(Proxy* proxy) {
 	root.removeProxy(proxy);
+	delete proxy;
 }
 
 void Quadtree::clear() {
