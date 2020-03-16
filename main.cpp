@@ -1,6 +1,7 @@
 #include "MainWindow.hpp"
 #include "Broadphase.h"
 #include "Quadtree.h"
+#include "SpatialHash.hpp"
 
 #include <QtWidgets>
 
@@ -18,8 +19,8 @@ int main(int argc, char *argv[])
 	QList<QPair<QString, QSharedPointer<Broadphase>>> bpis = {
 		{"K-D Tree",QSharedPointer<Broadphase>(new Quadtree())},
 		{"K-D-B Tree",QSharedPointer<Broadphase>(new Quadtree())},
-		{"PR Quadtree",QSharedPointer<Broadphase>(new Quadtree())},
 		{"Quadtree",QSharedPointer<Broadphase>(new Quadtree())},
+		{"Spatial Hash",QSharedPointer<Broadphase>(new SpatialHash())},
 	};
 	foreach (auto bp, bpis) {
 		QPushButton *bpButton = new QPushButton(bp.first);

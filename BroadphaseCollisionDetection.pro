@@ -21,7 +21,7 @@ HEADERS  += \
     AxisAlignedBoundingBox.hpp \
     Broadphase.h \
     Quadtree.h \
-    SparseSpatialBroadphase.hpp \
-    MainWindow.hpp
+    MainWindow.hpp \
+    SpatialHash.hpp
 
 FORMS    +=

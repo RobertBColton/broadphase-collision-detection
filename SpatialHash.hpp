@@ -9,7 +9,7 @@
 #ifndef SPARSESPATIALBROADPHASE_H
 #define SPARSESPATIALBROADPHASE_H
 
-#include "AxisAlignedBoundingBox.hpp"
+#include "Broadphase.h"
 
 #include <iterator>
 #include <unordered_map>
@@ -25,8 +25,7 @@ struct Point {
 	}
 };
 
-class SparseSpatialBroadphase {
-	typedef std::pair<void *const, const AABB> Proxy;
+class SpatialHash : public Broadphase {
 	typedef std::pair<void *const, void *const> CollisionPair;
 
 	struct PointHash {
@@ -50,11 +49,11 @@ class SparseSpatialBroadphase {
 	};
 
 	int cell_width, cell_height;
-	std::unordered_map<Point, std::unordered_set<Proxy, ProxyHash>, PointHash> cells;
+	std::unordered_map<Point, std::unordered_set<Proxy*, ProxyHash>, PointHash> cells;
 
 public:
-	SparseSpatialBroadphase() : cell_width(1), cell_height(1) {};
-	SparseSpatialBroadphase(int cell_width, int cell_height) :
+	SpatialHash() : cell_width(64), cell_height(64) {};
+	SpatialHash(int cell_width, int cell_height) :
 		cell_width(cell_width), cell_height(cell_height) {}
 
 	void setCellSize(const int cell_width, const int cell_height) {
@@ -78,29 +77,63 @@ public:
 		return cell_height;
 	}
 
-	void addPoint(const int x, const int y, void *const userdata) {
-		cells[Point(x / cell_width, y / cell_height)].insert(Proxy(userdata, AABB(x, y, 1, 1)));
+	Proxy* addPoint(const int x, const int y, void *const userdata) {
+		Proxy* proxy = new Proxy(AABB(x, y, 1, 1), userdata);
+		cells[Point(x / cell_width, y / cell_height)].insert(proxy);
+		return proxy;
 	}
 
-	void addRectangle(
+	Proxy* addRectangle(
 			const int x, const int y, const int width, const int height, void *const userdata) {
+		auto proxy = new Proxy(AABB(x, y, width, height), userdata);
 		int xx = x / cell_width, yy = y / cell_height;
 		for (int i = xx; i < ((x + width) / cell_width) + 1; ++i) {
 			for (int ii = yy; ii < ((y + height) / cell_height) + 1; ++ii) {
-				cells[Point(i, ii)].insert(Proxy(userdata, AABB(x, y, width, height)));
+				cells[Point(i, ii)].insert(proxy);
+			}
+		}
+		return proxy;
+	}
+
+	Proxy* addProxy(AABB aabb, void* userdata = 0) {
+		return addRectangle(aabb.getX(), aabb.getY(), aabb.getWidth(), aabb.getHeight(), userdata);
+	}
+
+	void removeProxy(Proxy* proxy) {
+		int x = proxy->aabb.getX(), y = proxy->aabb.getY(),
+				width = proxy->aabb.getWidth(), height = proxy->aabb.getHeight();
+		int xx = x / cell_width, yy = y / cell_height;
+		for (int i = xx; i < ((x + width) / cell_width) + 1; ++i) {
+			for (int ii = yy; ii < ((y + height) / cell_height) + 1; ++ii) {
+				cells[Point(i, ii)].erase(proxy);
 			}
 		}
 	}
 
-	const std::unordered_set<CollisionPair, CollisionPairHash> getCollisionPairs() {
+	std::set<Proxy*> queryRange(const int x, const int y, const int radius) {
+		std::set<Proxy*> hits;
+		const int xx = (x - radius) / cell_width, yy = (y - radius) / cell_height;
+		const int diameter = radius * 2;
+		for (int i = xx; i < ((x + diameter) / cell_width) + 1; ++i) {
+			for (int ii = yy; ii < ((y + diameter) / cell_height) + 1; ++ii) {
+				for (auto proxy : cells[Point(i, ii)]) {
+					if (proxy->aabb.intersectsCircle(x, y, radius))
+						hits.insert(proxy);
+				}
+			}
+		}
+		return hits;
+	}
+
+	const std::unordered_set<CollisionPair, CollisionPairHash> queryCollisionPairs() {
 		std::unordered_set<CollisionPair, CollisionPairHash> collisionPairs;
 		for (const auto &cell : cells) {
 			for (auto proxyIt = cell.second.cbegin(); proxyIt != cell.second.cend();) {
 				const auto &proxy = *proxyIt;
 				for (auto otherIt = ++proxyIt; otherIt != cell.second.cend(); ++otherIt) {
 					const auto &other = *otherIt;
-					if (proxy.second.intersectsAABB(other.second))
-						collisionPairs.insert(CollisionPair(proxy.first, other.first));
+					if (proxy->aabb.intersectsAABB(other->aabb))
+						collisionPairs.insert(CollisionPair(proxy->userdata, other->userdata));
 				}
 			}
 		}

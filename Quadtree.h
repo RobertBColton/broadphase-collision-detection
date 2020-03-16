@@ -2,7 +2,6 @@
 #define QUADTREE_H
 
 #include "Broadphase.h"
-#include "AxisAlignedBoundingBox.hpp"
 
 #include <set>
 
