@@ -1,37 +1,34 @@
 #include "MainWindow.hpp"
-#include "SparseSpatialBroadphase.hpp"
+#include "Broadphase.h"
 
-#include <QGraphicsRectItem>
-#include <QGraphicsView>
-#include <QTimer>
-#include <QTime>
+#include <QtWidgets>
 
 #include <vector>
 
-SparseSpatialBroadphase broadphase(100, 100);
-
 std::vector<QGraphicsRectItem*> objects;
-QGraphicsRectItem* player;
+QGraphicsEllipseItem* player;
+qreal playerRadius = 50.0f;
 QGraphicsView *view;
 
 int randomInt(int low, int high) {
 	return qrand() % ((high + 1) - low) + low;
 }
 
-MainWindow::MainWindow(QWidget *parent) :
-	QMainWindow(parent)
+MainWindow::MainWindow(Broadphase *broadphase, QWidget *parent) :
+	QMainWindow(parent), broadphase(broadphase)
 {
 	QTime time = QTime::currentTime();
 	qsrand((uint)time.msec());
 
-	QGraphicsScene *scene = new QGraphicsScene(0, 0, 1200, 720, this);
+	QGraphicsScene *scene = new QGraphicsScene(0, 0, 1000, 1000, this);
 	scene->setItemIndexMethod(QGraphicsScene::NoIndex);
 
 	// create the player
-	player = scene->addRect(0, 0, 50, 50, QPen(Qt::black), Qt::green);
+	player = scene->addEllipse(
+				0, 0, playerRadius*2, playerRadius*2, QPen(Qt::black), Qt::green);
 
 	// create some random objects
-	for (size_t i = 0; i < 5000; ++i) {
+	for (size_t i = 0; i < 10000; ++i) {
 		QGraphicsRectItem* object = scene->addRect(
 			0, 0, randomInt(10, 25), randomInt(10, 25));
 		object->setPos(
@@ -43,9 +40,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	// create a background grid that shows the buckets
 	QPen gridPen(Qt::black, 5);
-	for (int x = 0; x <= scene->width(); x += broadphase.getCellWidth())
+	qreal cellWidth = 62.5f;// broadphase.getCellWidth();
+	qreal cellHeight = 62.5f;// broadphase.getCellHeight();
+	for (qreal x = 0; x <= scene->width(); x += cellWidth)
 		scene->addLine(x, 0, x, scene->height(), gridPen);
-	for (int y = 0; y <= scene->height(); y += broadphase.getCellHeight())
+	for (qreal y = 0; y <= scene->height(); y += cellHeight)
 		scene->addLine(0, y, scene->width(), y, gridPen);
 
 	QTimer *timer = new QTimer(this);
@@ -65,15 +64,6 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::updateGame() {
-	player->setPos(view->mapFromGlobal(QCursor::pos() - QPoint(25, 25)));
-
-	// add the player to the broadphase
-	broadphase.addRectangle(
-		player->x(),
-		player->y(),
-		player->boundingRect().width(),
-		player->boundingRect().height(),
-		player);
 
 	for (const auto& object : objects) {
 		// move the object around
@@ -95,33 +85,28 @@ void MainWindow::updateGame() {
 		object->setPen(QPen(Qt::black));
 
 		// add it to the broadphase
-		broadphase.addRectangle(
-			object->x(),
-			object->y(),
-			object->boundingRect().width(),
-			object->boundingRect().height(),
+		broadphase->addProxy(
+			AABB(object->x(),object->y(),
+					 object->boundingRect().width(),object->boundingRect().height()),
 			object);
 	}
 
-	// now query the collision pairs and change the color of objects that hit the player to red
-	const auto &collisionPairs = broadphase.getCollisionPairs();
+	// now query the cursor and change the color of objects
+	// that hit the player to red
+	player->setPos(view->mapFromGlobal(QCursor::pos() - QPoint(playerRadius, playerRadius)));
+	const auto &hits = broadphase->queryRange(
+				player->x() + playerRadius,
+				player->y() + playerRadius,
+				playerRadius);
 
-	for (const auto &pair : collisionPairs) {
-		QGraphicsRectItem *other = nullptr;
-		if (pair.first == player) {
-			other = (QGraphicsRectItem*)pair.second;
-		} else if (pair.second == player) {
-			other = (QGraphicsRectItem*)pair.first;
-		} else {
-			((QGraphicsRectItem*)pair.first)->setPen(QPen(Qt::cyan));
-			 ((QGraphicsRectItem*)pair.second)->setPen(QPen(Qt::cyan));
-		}
-		if (other != nullptr)
-			other->setBrush(Qt::red);
+	for (const auto &hit : hits) {
+		auto other = (QAbstractGraphicsShapeItem*)hit->userdata;
+		if (other == nullptr) continue;
+		other->setBrush(Qt::red);
 	}
 
 	// clear broadphase for the next run
-	broadphase.clear();
+	broadphase->clear();
 
 	// do the repainting manually
 	view->viewport()->update();

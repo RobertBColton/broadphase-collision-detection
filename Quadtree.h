@@ -14,22 +14,29 @@ class Quadtree : public Broadphase
 		std::set<Proxy*> children;
 
 		Node(AABB aabb): aabb(aabb) {}
+		~Node() {
+			for (auto proxy : children)
+				delete proxy;
+			delete NW;
+			delete NE;
+			delete SE;
+			delete SW;
+		}
 
-		Proxy* addProxy(AABB aabb) {
-			if (!aabb.intersectsAABB(this->aabb)) return nullptr;
+		Proxy* addProxy(Proxy *proxy) {
+			if (!aabb.intersectsAABB(proxy->aabb)) return nullptr;
 			if (NW) {
-				if (NW->aabb.containsAABB(aabb)) return NW->addProxy(aabb);
-				if (NE->aabb.containsAABB(aabb)) return NE->addProxy(aabb);
-				if (SW->aabb.containsAABB(aabb)) return SW->addProxy(aabb);
-				if (SE->aabb.containsAABB(aabb)) return SE->addProxy(aabb);
+				if (NW->aabb.containsAABB(proxy->aabb)) return NW->addProxy(proxy);
+				if (NE->aabb.containsAABB(proxy->aabb)) return NE->addProxy(proxy);
+				if (SW->aabb.containsAABB(proxy->aabb)) return SW->addProxy(proxy);
+				if (SE->aabb.containsAABB(proxy->aabb)) return SE->addProxy(proxy);
 			}
-			Proxy* proxy = new Proxy(aabb);
 			children.insert(proxy);
 			return proxy;
 		}
 
 		void removeProxy(Proxy* proxy) {
-			if (!proxy->aabb.intersectsAABB(this->aabb)) return;
+			if (!aabb.intersectsAABB(proxy->aabb)) return;
 			if (children.erase(proxy) > 0) return;
 			if (NW) {
 				NW->removeProxy(proxy);
@@ -39,7 +46,19 @@ class Quadtree : public Broadphase
 			}
 		}
 
-		void queryRange(const int x, const int y, const int radius, std::set<Proxy*> hits) {
+		void clear() {
+			for (auto proxy : children)
+				delete proxy;
+			std::set<Proxy*>().swap(children);
+			if (NW) {
+				NW->clear();
+				NE->clear();
+				SW->clear();
+				SE->clear();
+			}
+		}
+
+		void queryRange(const int x, const int y, const int radius, std::set<Proxy*>& hits) {
 			if (!aabb.intersectsCircle(x, y, radius)) return;
 			for (auto child : children)
 				if (child->aabb.intersectsCircle(x, y, radius))
@@ -60,8 +79,9 @@ class Quadtree : public Broadphase
 
 public:
 	Quadtree(int width = 1000, int height = 1000, int depth = 4);
-	Proxy* addProxy(AABB aabb) override;
+	Proxy* addProxy(AABB aabb, void* userdata = 0) override;
 	void removeProxy(Proxy* proxy) override;
+	void clear() override;
 	std::set<Proxy*> queryRange(const int x, const int y, const int radius) override;
 };
 

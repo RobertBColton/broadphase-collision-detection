@@ -23,15 +23,17 @@ int main(int argc, char *argv[])
 	};
 	foreach (auto bp, bpis) {
 		QPushButton *bpButton = new QPushButton(bp.first);
+		bpButton->connect(bpButton, &QAbstractButton::clicked, [&](){
+			auto w = new MainWindow(bp.second.get());
+			w->setAttribute(Qt::WA_ShowModal, true);
+			w->show();
+		});
 		vbl->addWidget(bpButton);
 	}
 
 	launcher.setLayout(vbl);
 	launcher.resize(600,400);
 	launcher.show();
-
-	//MainWindow w;
-	//w.show();
 
 	return a.exec();
 }

@@ -18,8 +18,9 @@ public:
 	};
 
 	virtual ~Broadphase() {}
-	virtual Proxy* addProxy(AABB aabb) = 0;
+	virtual Proxy* addProxy(AABB aabb, void* userdata = 0) = 0;
 	virtual void removeProxy(Proxy* proxy) = 0;
+	virtual void clear() = 0;
 	virtual std::set<Proxy*> queryRange(const int x, const int y, const int radius) = 0;
 };
 

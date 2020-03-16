@@ -19,12 +19,19 @@ void Quadtree::buildTree(Node* root, int cd) {
 	buildTree(root->SE, cd + 1);
 }
 
-Broadphase::Proxy* Quadtree::addProxy(AABB aabb) {
-	return root.addProxy(aabb);
+Broadphase::Proxy* Quadtree::addProxy(AABB aabb, void* userdata) {
+	Proxy* proxy = new Proxy(aabb, userdata);
+	auto ret = root.addProxy(proxy);
+	if (!ret) delete proxy;
+	return ret;
 }
 
 void Quadtree::removeProxy(Proxy* proxy) {
 	root.removeProxy(proxy);
+}
+
+void Quadtree::clear() {
+	root.clear();
 }
 
 std::set<Broadphase::Proxy*> Quadtree::queryRange(const int x, const int y, const int radius) {

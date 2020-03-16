@@ -46,7 +46,7 @@ public:
 	bool point_in_circle(const int x, const int y, const int cx, const int cy, const int radius) {
 		int xd = cx - x;
 		int yd = cy - y;
-		return (xd*xd + yd*yd) < radius;
+		return (xd*xd + yd*yd) < radius*radius;
 	}
 
 	bool intersectsCircle(const int x, const int y, const int radius) {
