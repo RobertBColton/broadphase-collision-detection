@@ -22,6 +22,25 @@ int main(int argc, char *argv[])
 		{"Quadtree",QSharedPointer<Broadphase>(new Quadtree())},
 		{"Spatial Hash",QSharedPointer<Broadphase>(new SpatialHash())},
 	};
+
+	bmButton->connect(bmButton, &QAbstractButton::clicked, [&](){
+		QDialog benchmarkWindow(nullptr);
+		benchmarkWindow.setWindowFlags(launcher.windowFlags() & ~Qt::WindowContextHelpButtonHint);
+		benchmarkWindow.setWindowTitle("Benchmark");
+
+		QVBoxLayout* bmlayout = new QVBoxLayout();
+		QTableWidget* benchmarkTable = new QTableWidget(bpis.size(), 4);
+		benchmarkTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+		benchmarkTable->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+		benchmarkTable->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+		benchmarkTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+		benchmarkTable->setHorizontalHeaderLabels({"Memory", "Insert", "Query", "Delete"});
+		bmlayout->addWidget(benchmarkTable);
+		benchmarkWindow.setLayout(bmlayout);
+
+		benchmarkWindow.exec();
+	});
+
 	foreach (auto bp, bpis) {
 		QPushButton *bpButton = new QPushButton(bp.first);
 		bpButton->connect(bpButton, &QAbstractButton::clicked, [=](){
