@@ -135,9 +135,12 @@ public:
 	}
 
 	void clear() {
+		std::unordered_set<Proxy*> unique;
 		for (auto cell : cells)
 			for (auto proxy : cell.second)
-				delete proxy;
+				unique.insert(proxy);
+		for (auto proxy : unique)
+			delete proxy;
 		cells.clear();
 	}
 };

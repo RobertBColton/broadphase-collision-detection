@@ -5,6 +5,32 @@
 
 #include <QtWidgets>
 
+static int randomInt(int low, int high) {
+	return rand() % ((high + 1) - low) + low;
+}
+
+double benchmark(std::function<void(bool,bool)> fnc, std::function<void(bool,bool)> pre = [](bool,bool){},
+								std::function<void(bool,bool)> post = [](bool,bool){}, int runs = 5) {
+	double avgTime = 0;
+	for (int i = 0; i < runs;) {
+		bool firstRun = (i == 0),
+				 finalRun = (i == runs - 1);
+		srand(1);
+		pre(firstRun, finalRun);
+
+		auto start = std::chrono::high_resolution_clock::now();
+		fnc(firstRun, finalRun);
+		auto end = std::chrono::high_resolution_clock::now();
+		auto elapsed = end - start;
+		long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+		double delta = microseconds - avgTime;
+		avgTime += delta/++i;
+
+		post(firstRun, finalRun);
+	}
+	return avgTime;
+}
+
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
@@ -28,13 +54,58 @@ int main(int argc, char *argv[])
 		benchmarkWindow.setWindowFlags(launcher.windowFlags() & ~Qt::WindowContextHelpButtonHint);
 		benchmarkWindow.setWindowTitle("Benchmark");
 
-		QVBoxLayout* bmlayout = new QVBoxLayout();
 		QTableWidget* benchmarkTable = new QTableWidget(bpis.size(), 4);
 		benchmarkTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-		benchmarkTable->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+		benchmarkTable->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
 		benchmarkTable->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
 		benchmarkTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+		for (int i = 0; i < bpis.size(); ++i) {
+			auto bpi = bpis[i];
+			benchmarkTable->setVerticalHeaderItem(i, new QTableWidgetItem(bpi.first));
+
+			std::function<void(void)> createRandom = [=]{
+				for (int i = 0; i < 10000; ++i) {
+					bpi.second->addProxy(
+								AABB(randomInt(0, 1024),
+										 randomInt(0, 1024),
+										 randomInt(4, 320),
+										 randomInt(4, 320))
+					);
+				}
+			};
+
+			double insert = benchmark([=](bool, bool){
+				createRandom();
+			}, [=](bool, bool){
+				bpi.second->clear();
+			});
+			size_t memory = sizeof(bpi.second);
+			double query = benchmark([=](bool, bool) {
+				for (int i = 0; i < 100; ++i) {
+					bpi.second->queryRange(randomInt(0, 1024),
+																 randomInt(0, 1024),
+																 randomInt(2, 240));
+				}
+			});
+			double remove = benchmark([=](bool, bool){
+				bpi.second->clear();
+			},
+			[](bool,bool){},
+			[&](bool,bool finalRun){
+				if (!finalRun) createRandom();
+			});
+
+			benchmarkTable->setItem(i, 0, new QTableWidgetItem(QString::number(memory)));
+			benchmarkTable->setItem(i, 1, new QTableWidgetItem(QString::number(insert)));
+			benchmarkTable->setItem(i, 2, new QTableWidgetItem(QString::number(query)));
+			benchmarkTable->setItem(i, 3, new QTableWidgetItem(QString::number(remove)));
+		}
+
+		benchmarkTable->setSortingEnabled(true);
 		benchmarkTable->setHorizontalHeaderLabels({"Memory", "Insert", "Query", "Delete"});
+
+		QVBoxLayout* bmlayout = new QVBoxLayout();
 		bmlayout->addWidget(benchmarkTable);
 		benchmarkWindow.setLayout(bmlayout);
 
