@@ -3,14 +3,12 @@
 
 #include "Broadphase.h"
 
-#include <set>
-
 class Quadtree : public Broadphase
 {
 	struct Node {
 		AABB aabb;
 		Node *NW = nullptr, *NE = nullptr, *SE = nullptr, *SW = nullptr;
-		std::set<Proxy*> children;
+		std::unordered_set<Proxy*> children;
 
 		Node(AABB aabb): aabb(aabb) {}
 		~Node() {
@@ -48,7 +46,7 @@ class Quadtree : public Broadphase
 		void clear() {
 			for (auto proxy : children)
 				delete proxy;
-			std::set<Proxy*>().swap(children);
+			std::unordered_set<Proxy*>().swap(children);
 			if (NW) {
 				NW->clear();
 				NE->clear();
@@ -57,7 +55,7 @@ class Quadtree : public Broadphase
 			}
 		}
 
-		void queryRange(const int x, const int y, const int radius, std::set<Proxy*>& hits) {
+		void queryRange(const int x, const int y, const int radius, std::unordered_set<Proxy*>& hits) {
 			if (!aabb.intersectsCircle(x, y, radius)) return;
 			for (auto child : children)
 				if (child->aabb.intersectsCircle(x, y, radius))
@@ -81,7 +79,7 @@ public:
 	Proxy* addProxy(AABB aabb, void* userdata = 0) override;
 	void removeProxy(Proxy* proxy) override;
 	void clear() override;
-	std::set<Proxy*> queryRange(const int x, const int y, const int radius) override;
+	std::unordered_set<Proxy*> queryRange(const int x, const int y, const int radius) override;
 };
 
 #endif // QUADTREE_H

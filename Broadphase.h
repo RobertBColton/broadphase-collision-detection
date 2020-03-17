@@ -3,7 +3,7 @@
 
 #include "AxisAlignedBoundingBox.hpp"
 
-#include <set>
+#include <unordered_set>
 
 class Broadphase {
 protected:
@@ -21,7 +21,7 @@ public:
 	virtual Proxy* addProxy(AABB aabb, void* userdata = 0) = 0;
 	virtual void removeProxy(Proxy* proxy) = 0;
 	virtual void clear() = 0;
-	virtual std::set<Proxy*> queryRange(const int x, const int y, const int radius) = 0;
+	virtual std::unordered_set<Proxy*> queryRange(const int x, const int y, const int radius) = 0;
 };
 
 #endif // BROADPHASE_H
