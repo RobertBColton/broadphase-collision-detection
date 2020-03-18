@@ -9,6 +9,8 @@
 #ifndef AXISALIGNEDBOUNDINGBOX_HPP
 #define AXISALIGNEDBOUNDINGBOX_HPP
 
+#include <algorithm>
+
 class AABB {
 	int x, y, width, height;
 
@@ -50,13 +52,9 @@ public:
 	}
 
 	bool intersectsCircle(const int x, const int y, const int radius) {
-		return (
-			intersectsPoint(x, y) ||
-			point_in_circle(this->x, this->y, x, y, radius) ||
-			point_in_circle(this->x+width, this->y, x, y, radius) ||
-			point_in_circle(this->x, this->y+height, x, y, radius) ||
-			point_in_circle(this->x+width, this->y+height, x, y, radius)
-		);
+		const int nX = std::max(this->x, std::min(x, this->x + width)),
+							nY = std::max(this->y, std::min(y, this->y + height));
+		return point_in_circle(nX, nY, x, y, radius);
 	}
 
 	bool containsRectangle(const int x, const int y, const int width, const int height) const {
