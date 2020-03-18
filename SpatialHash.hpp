@@ -107,9 +107,8 @@ public:
 	std::unordered_set<Proxy*> queryRange(const int x, const int y, const int radius) {
 		std::unordered_set<Proxy*> hits;
 		const int xx = (x - radius) / cell_width, yy = (y - radius) / cell_height;
-		const int diameter = radius * 2;
-		for (int i = xx; i < ((x + diameter) / cell_width) + 1; ++i) {
-			for (int ii = yy; ii < ((y + diameter) / cell_height) + 1; ++ii) {
+		for (int i = xx; i < ((x + radius) / cell_width) + 1; ++i) {
+			for (int ii = yy; ii < ((y + radius) / cell_height) + 1; ++ii) {
 				for (auto proxy : cells[Point(i, ii)]) {
 					if (hits.count(proxy) > 0) continue;
 					if (proxy->aabb.intersectsCircle(x, y, radius))
