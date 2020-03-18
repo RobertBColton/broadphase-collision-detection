@@ -66,11 +66,13 @@ int main(int argc, char *argv[])
 
 			std::function<void(void)> createRandom = [=]{
 				for (int i = 0; i < 10000; ++i) {
+					const int width = randomInt(4, 320),
+										height = randomInt(4, 320);
 					bpi.second->addProxy(
-								AABB(randomInt(0, 1024),
-										 randomInt(0, 1024),
-										 randomInt(4, 320),
-										 randomInt(4, 320))
+								AABB(randomInt(-width, 1024),
+										 randomInt(-height, 1024),
+										 width,
+										 height)
 					);
 				}
 			};

@@ -11,7 +11,7 @@ MainWindow::MainWindow(Broadphase *broadphase, QWidget *parent) :
 	QTime time = QTime::currentTime();
 	qsrand((uint)time.msec());
 
-	QGraphicsScene *scene = new QGraphicsScene(0, 0, 1024, 1024, this);
+	scene = new QGraphicsScene(0, 0, 1024, 1024, this);
 	scene->setItemIndexMethod(QGraphicsScene::NoIndex);
 
 	// create the player
@@ -61,13 +61,13 @@ void MainWindow::updateGame() {
 		QPointF velocity = object->data(0).toPointF();
 		object->moveBy(velocity.x(), velocity.y());
 		if (object->x() < -object->boundingRect().width()) {
-			object->setX(this->width());
-		} else if (object->x() > this->width()) {
+			object->setX(scene->width());
+		} else if (object->x() > scene->width()) {
 			object->setX(-object->boundingRect().width());
 		}
 		if (object->y() < -object->boundingRect().height()) {
-			object->setY(this->height());
-		} else if (object->y() > this->height()) {
+			object->setY(scene->height());
+		} else if (object->y() > scene->height()) {
 			object->setY(-object->boundingRect().height());
 		}
 

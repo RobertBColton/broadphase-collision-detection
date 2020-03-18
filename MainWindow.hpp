@@ -22,6 +22,7 @@ public slots:
 	void updateGame();
 
 private:
+	QGraphicsScene* scene;
 	Broadphase *broadphase;
 	std::vector<QGraphicsRectItem*> objects;
 	QGraphicsEllipseItem *player;

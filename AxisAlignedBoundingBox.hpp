@@ -41,14 +41,14 @@ public:
 	void setHeight(const int height) { this->height = height; }
 
 	bool intersectsPoint(const int x, const int y) const {
-		return x > this->x && x < this->x + this->width &&
-				y > this->y && y < this->y + this->height;
+		return x >= this->x && x <= this->x + this->width &&
+				y >= this->y && y <= this->y + this->height;
 	}
 
 	bool point_in_circle(const int x, const int y, const int cx, const int cy, const int radius) {
 		int xd = cx - x;
 		int yd = cy - y;
-		return (xd*xd + yd*yd) < radius*radius;
+		return (xd*xd + yd*yd) <= radius*radius;
 	}
 
 	bool intersectsCircle(const int x, const int y, const int radius) {
@@ -67,8 +67,8 @@ public:
 	}
 
 	bool intersectsRectangle(const int x, const int y, const int width, const int height) const {
-		return (x < this->x + this->width && x + width > this->x &&
-				y < this->y + this->height && y + height > this->y);
+		return (x <= this->x + this->width && x + width >= this->x &&
+				y <= this->y + this->height && y + height >= this->y);
 	}
 
 	bool intersectsAABB(const AABB &aabb) const {

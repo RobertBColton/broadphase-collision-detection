@@ -10,9 +10,9 @@ void Quadtree::buildTree(Node* root, int cd) {
 	int newWidth = root->aabb.getWidth() / 2,
 			newHeight = root->aabb.getHeight() / 2;
 	root->NW = new Node(AABB(root->aabb.getX(), root->aabb.getY(), newWidth, newHeight));
-	root->NE = new Node(AABB(root->aabb.getX() + newWidth, root->aabb.getY(), newWidth, newHeight));
-	root->SW = new Node(AABB(root->aabb.getX(), root->aabb.getY() + newHeight, newWidth, newHeight));
-	root->SE = new Node(AABB(root->aabb.getX() + newWidth, root->aabb.getY() + newHeight, newWidth, newHeight));
+	root->NE = new Node(AABB(root->aabb.getX() + newWidth + 1, root->aabb.getY(), newWidth, newHeight));
+	root->SW = new Node(AABB(root->aabb.getX(), root->aabb.getY() + newHeight + 1, newWidth, newHeight));
+	root->SE = new Node(AABB(root->aabb.getX() + newWidth + 1, root->aabb.getY() + newHeight + 1, newWidth, newHeight));
 	buildTree(root->NW, cd + 1);
 	buildTree(root->NE, cd + 1);
 	buildTree(root->SW, cd + 1);
