@@ -19,9 +19,9 @@ SOURCES += main.cpp \
 
 HEADERS  += \
     AxisAlignedBoundingBox.hpp \
-    Broadphase.h \
-    Quadtree.h \
+    Broadphase.hpp \
     MainWindow.hpp \
+    Quadtree.hpp \
     SpatialHash.hpp
 
 FORMS    +=

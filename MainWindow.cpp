@@ -1,5 +1,5 @@
 #include "MainWindow.hpp"
-#include "Broadphase.h"
+#include "Broadphase.hpp"
 
 static int randomInt(int low, int high) {
 	return qrand() % ((high + 1) - low) + low;

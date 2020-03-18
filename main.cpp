@@ -1,6 +1,6 @@
 #include "MainWindow.hpp"
-#include "Broadphase.h"
-#include "Quadtree.h"
+#include "Broadphase.hpp"
+#include "Quadtree.hpp"
 #include "SpatialHash.hpp"
 
 #include <QtWidgets>

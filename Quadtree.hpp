@@ -1,7 +1,7 @@
 #ifndef QUADTREE_H
 #define QUADTREE_H
 
-#include "Broadphase.h"
+#include "Broadphase.hpp"
 
 class Quadtree : public Broadphase
 {

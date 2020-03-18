@@ -9,7 +9,7 @@
 #ifndef SPARSESPATIALBROADPHASE_H
 #define SPARSESPATIALBROADPHASE_H
 
-#include "Broadphase.h"
+#include "Broadphase.hpp"
 
 #include <iterator>
 #include <unordered_map>

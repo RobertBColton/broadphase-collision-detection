@@ -1,4 +1,4 @@
-#include "Quadtree.h"
+#include "Quadtree.hpp"
 
 Quadtree::Quadtree(int width, int height, int depth): Broadphase(), root(AABB(width, height)), depth(depth)
 {

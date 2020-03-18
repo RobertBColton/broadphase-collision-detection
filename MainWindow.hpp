@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QtWidgets>
-#include "Broadphase.h"
+#include "Broadphase.hpp"
 
 #include <vector>
 
