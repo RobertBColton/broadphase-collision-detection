@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 					double update = benchmark([=](bool, bool) {
 						int proxyId = 0;
 						createRandom(bpi.second.get(), [&](Broadphase* bp, const AABB& aabb){
-							const auto proxy = proxies[proxyId++];
+							const auto proxy = proxies[proxies.size() - ++proxyId];
 							bp->updateProxy(proxy, aabb);
 							return proxy;
 						});
