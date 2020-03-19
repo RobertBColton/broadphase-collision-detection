@@ -13,7 +13,8 @@
 
 #include <iterator>
 #include <unordered_map>
-#include <unordered_set>
+#include <vector>
+#include <algorithm>
 
 struct Point {
 	int x, y;
@@ -42,7 +43,7 @@ class SpatialHash : public Broadphase {
 	};
 
 	int cell_width, cell_height;
-	std::unordered_map<Point, std::unordered_set<Proxy*>, PointHash> cells;
+	std::unordered_map<Point, std::vector<Proxy*>, PointHash> cells;
 
 public:
 	SpatialHash() : cell_width(64), cell_height(64) {};
@@ -72,7 +73,7 @@ public:
 
 	Proxy* addPoint(const int x, const int y, void *const userdata) {
 		Proxy* proxy = new Proxy(AABB(x, y, 1, 1), userdata);
-		cells[Point(x / cell_width, y / cell_height)].insert(proxy);
+		cells[Point(x / cell_width, y / cell_height)].push_back(proxy);
 		return proxy;
 	}
 
@@ -81,7 +82,7 @@ public:
 		int xx = x / cell_width, yy = y / cell_height;
 		for (int i = xx; i < ((x + width) / cell_width) + 1; ++i) {
 			for (int ii = yy; ii < ((y + height) / cell_height) + 1; ++ii) {
-				cells[Point(i, ii)].insert(proxy);
+				cells[Point(i, ii)].push_back(proxy);
 			}
 		}
 		return proxy;
@@ -98,7 +99,9 @@ public:
 		int xx = x / cell_width, yy = y / cell_height;
 		for (int i = xx; i < ((x + width) / cell_width) + 1; ++i) {
 			for (int ii = yy; ii < ((y + height) / cell_height) + 1; ++ii) {
-				cells[Point(i, ii)].erase(proxy);
+				auto& cell = cells[Point(i, ii)];
+				const auto it = std::find(cell.begin(), cell.end(), proxy);
+				cell.erase(it);
 			}
 		}
 		if (free) delete proxy;
@@ -141,7 +144,7 @@ public:
 				unique.insert(proxy);
 		for (auto proxy : unique)
 			delete proxy;
-		std::unordered_map<Point, std::unordered_set<Proxy*>, PointHash>().swap(cells);
+		std::unordered_map<Point, std::vector<Proxy*>, PointHash>().swap(cells);
 	}
 };
 
