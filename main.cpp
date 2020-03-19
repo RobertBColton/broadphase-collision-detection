@@ -63,8 +63,8 @@ int main(int argc, char *argv[])
 	auto createRandomDense = [=](Broadphase* bp, FinalizeProxy finalizeProxy = addAABB) {
 		std::vector<Broadphase::Proxy*> proxies;
 		for (int i = 0; i < 10000; ++i) {
-			const int width = randomInt(4, 320),
-								height = randomInt(4, 320);
+			const int width = randomInt(4, 32),
+								height = randomInt(4, 32);
 			const auto aabb = AABB(randomInt(-width, 1024),
 														 randomInt(-height, 1024),
 														 width,
@@ -81,10 +81,10 @@ int main(int argc, char *argv[])
 			int cx = randomInt(0, 1024);
 			int cy = randomInt(0, 1024);
 			for (int i = 0; i < 1000; ++i) {
-				const int width = randomInt(4, 128),
-									height = randomInt(4, 128);
-				const auto aabb = AABB(cx + randomInt(-std::min(128, width), 0),
-															 cy + randomInt(-std::min(128, height), 0),
+				const int width = randomInt(4, 32),
+									height = randomInt(4, 32);
+				const auto aabb = AABB(cx + randomInt(-std::min(32, width), 0),
+															 cy + randomInt(-std::min(32, height), 0),
 															 width, height);
 				auto proxy = finalizeProxy(bp, aabb);
 				proxies.push_back(proxy);
