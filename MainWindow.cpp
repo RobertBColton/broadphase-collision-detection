@@ -55,7 +55,6 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::updateGame() {
-
 	for (const auto& object : objects) {
 		// move the object around
 		QPointF velocity = object->data(0).toPointF();
