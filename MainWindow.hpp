@@ -24,7 +24,7 @@ public slots:
 private:
 	QGraphicsScene* scene;
 	Broadphase *broadphase;
-	std::vector<QGraphicsRectItem*> objects;
+	std::vector<Broadphase::Proxy*> proxies;
 	QGraphicsEllipseItem *player;
 	qreal playerRadius = 50.0f;
 	QGraphicsView *view;

@@ -10,7 +10,7 @@ class Quadtree : public Broadphase
 		Node *NW = nullptr, *NE = nullptr, *SE = nullptr, *SW = nullptr;
 		std::unordered_set<Proxy*> children;
 
-		Node(AABB aabb): aabb(aabb) {}
+		Node(const AABB& aabb): aabb(aabb) {}
 		~Node() {
 			for (auto proxy : children)
 				delete proxy;
@@ -76,8 +76,8 @@ class Quadtree : public Broadphase
 
 public:
 	Quadtree(int width = 1024, int height = 1024, int depth = 4);
-	Proxy* addProxy(AABB aabb, void* userdata = 0) override;
-	void removeProxy(Proxy* proxy) override;
+	Proxy* addProxy(Proxy* proxy) override;
+	void removeProxy(Proxy* proxy, bool free) override;
 	void clear() override;
 	std::unordered_set<Proxy*> queryRange(const int x, const int y, const int radius) override;
 };

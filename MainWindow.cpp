@@ -20,13 +20,22 @@ MainWindow::MainWindow(Broadphase *broadphase, QWidget *parent) :
 
 	// create some random objects
 	for (size_t i = 0; i < 10000; ++i) {
-		QGraphicsRectItem* object = scene->addRect(
-			0, 0, randomInt(10, 25), randomInt(10, 25));
+		const int width = randomInt(10, 25),
+							height = randomInt(10, 25);
+		QGraphicsRectItem* object = scene->addRect(0,0,width,height);
 		object->setPos(
-			randomInt(-object->boundingRect().width(), scene->width()),
-			randomInt(-object->boundingRect().height(), scene->height()));
+			randomInt(-width, scene->width()),
+			randomInt(-height, scene->height())
+		);
 		object->setData(0, QPointF(randomInt(-2, 2), randomInt(-2, 2)));
-		objects.push_back(object);
+
+		// add it to the broadphase
+		auto proxy = broadphase->addProxy(
+			AABB(object->x(),object->y(),width,height),
+			object
+		);
+
+		proxies.push_back(proxy);
 	}
 
 	// create a background grid that shows the buckets
@@ -51,11 +60,13 @@ MainWindow::MainWindow(Broadphase *broadphase, QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-
+	broadphase->clear();
 }
 
 void MainWindow::updateGame() {
-	for (const auto& object : objects) {
+	for (auto proxy : proxies) {
+		auto object = (QGraphicsRectItem*)proxy->userdata;
+
 		// move the object around
 		QPointF velocity = object->data(0).toPointF();
 		object->moveBy(velocity.x(), velocity.y());
@@ -74,11 +85,10 @@ void MainWindow::updateGame() {
 		object->setBrush(Qt::darkCyan);
 		object->setPen(QPen(Qt::black));
 
-		// add it to the broadphase
-		broadphase->addProxy(
+		broadphase->updateProxy(
+			proxy,
 			AABB(object->x(),object->y(),
-					 object->boundingRect().width(),object->boundingRect().height()),
-			object);
+					 object->boundingRect().width(),object->boundingRect().height()));
 	}
 
 	// now query the cursor and change the color of objects
@@ -94,9 +104,6 @@ void MainWindow::updateGame() {
 		if (other == nullptr) continue;
 		other->setBrush(Qt::red);
 	}
-
-	// clear broadphase for the next run
-	broadphase->clear();
 
 	// do the repainting manually
 	view->viewport()->update();

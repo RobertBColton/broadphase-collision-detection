@@ -77,8 +77,7 @@ public:
 	}
 
 	Proxy* addRectangle(
-			const int x, const int y, const int width, const int height, void *const userdata) {
-		auto proxy = new Proxy(AABB(x, y, width, height), userdata);
+			const int x, const int y, const int width, const int height, Proxy* proxy) {
 		int xx = x / cell_width, yy = y / cell_height;
 		for (int i = xx; i < ((x + width) / cell_width) + 1; ++i) {
 			for (int ii = yy; ii < ((y + height) / cell_height) + 1; ++ii) {
@@ -88,11 +87,12 @@ public:
 		return proxy;
 	}
 
-	Proxy* addProxy(AABB aabb, void* userdata = 0) {
-		return addRectangle(aabb.getX(), aabb.getY(), aabb.getWidth(), aabb.getHeight(), userdata);
+	Proxy* addProxy(Proxy* proxy) {
+		auto& aabb = proxy->aabb;
+		return addRectangle(aabb.getX(), aabb.getY(), aabb.getWidth(), aabb.getHeight(), proxy);
 	}
 
-	void removeProxy(Proxy* proxy) {
+	void removeProxy(Proxy* proxy, bool free) {
 		int x = proxy->aabb.getX(), y = proxy->aabb.getY(),
 				width = proxy->aabb.getWidth(), height = proxy->aabb.getHeight();
 		int xx = x / cell_width, yy = y / cell_height;
@@ -101,7 +101,7 @@ public:
 				cells[Point(i, ii)].erase(proxy);
 			}
 		}
-		delete proxy;
+		if (free) delete proxy;
 	}
 
 	std::unordered_set<Proxy*> queryRange(const int x, const int y, const int radius) {

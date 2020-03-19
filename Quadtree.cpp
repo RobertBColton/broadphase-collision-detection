@@ -19,16 +19,13 @@ void Quadtree::buildTree(Node* root, int cd) {
 	buildTree(root->SE, cd + 1);
 }
 
-Broadphase::Proxy* Quadtree::addProxy(AABB aabb, void* userdata) {
-	Proxy* proxy = new Proxy(aabb, userdata);
-	auto ret = root.addProxy(proxy);
-	if (!ret) delete proxy;
-	return ret;
+Broadphase::Proxy* Quadtree::addProxy(Proxy* proxy) {
+	return root.addProxy(proxy);
 }
 
-void Quadtree::removeProxy(Proxy* proxy) {
+void Quadtree::removeProxy(Proxy* proxy, bool free) {
 	root.removeProxy(proxy);
-	delete proxy;
+	if (free) delete proxy;
 }
 
 void Quadtree::clear() {
