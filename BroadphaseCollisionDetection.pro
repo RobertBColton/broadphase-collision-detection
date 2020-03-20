@@ -14,8 +14,7 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    MainWindow.cpp \
-    Quadtree.cpp
+    MainWindow.cpp
 
 HEADERS  += \
     AxisAlignedBoundingBox.hpp \

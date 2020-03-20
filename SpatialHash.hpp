@@ -1,8 +1,8 @@
 /**
- * @file SparseSpatialBroadphase.hpp
+ * @file SpatialHash.hpp
  * @brief Implements a class for sparse spatial hashing collision detection.
  * @section License
- * Copyright (C) 2017 Robert Colton
+ * Copyright (C) 2017, 2020 Robert Colton
  * License pending. All rights reserved.
  */
 

@@ -1,3 +1,11 @@
+/**
+ * @file Broadphase.hpp
+ * @brief Defines an abstract base interface to be used for broadphase implementations.
+ * @section License
+ * Copyright (C) 2020 Robert Colton
+ * License pending. All rights reserved.
+ */
+
 #ifndef BROADPHASE_H
 #define BROADPHASE_H
 

@@ -1,3 +1,11 @@
+/**
+ * @file Quadtree.hpp
+ * @brief Implements a class for hierarchical quadtree collision detection.
+ * @section License
+ * Copyright (C) 2020 Robert Colton
+ * License pending. All rights reserved.
+ */
+
 #ifndef QUADTREE_H
 #define QUADTREE_H
 
@@ -74,14 +82,42 @@ class Quadtree : public Broadphase
 	Node root;
 	int depth;
 
-	void buildTree(Node* root, int cd = 0);
+	void buildTree(Node* root, int cd = 0) {
+		if (cd >= depth) return;
+		int newWidth = root->aabb.getWidth() / 2,
+				newHeight = root->aabb.getHeight() / 2;
+		root->NW = new Node(AABB(root->aabb.getX(), root->aabb.getY(), newWidth, newHeight));
+		root->NE = new Node(AABB(root->aabb.getX() + newWidth + 1, root->aabb.getY(), newWidth, newHeight));
+		root->SW = new Node(AABB(root->aabb.getX(), root->aabb.getY() + newHeight + 1, newWidth, newHeight));
+		root->SE = new Node(AABB(root->aabb.getX() + newWidth + 1, root->aabb.getY() + newHeight + 1, newWidth, newHeight));
+		buildTree(root->NW, cd + 1);
+		buildTree(root->NE, cd + 1);
+		buildTree(root->SW, cd + 1);
+		buildTree(root->SE, cd + 1);
+	}
 
 public:
-	Quadtree(int width = 1024, int height = 1024, int depth = 4);
-	Proxy* addProxy(Proxy* proxy) override;
-	void removeProxy(Proxy* proxy, bool free) override;
-	void clear() override;
-	std::vector<Proxy*> queryRange(const int x, const int y, const int radius) override;
+	Quadtree(int width = 1024, int height = 1024, int depth = 4):
+		Broadphase(), root(AABB(width, height)), depth(depth) {
+		buildTree(&root);
+	}
+
+	Proxy* addProxy(Proxy* proxy) override {
+		return root.addProxy(proxy);
+	}
+
+	void removeProxy(Proxy* proxy, bool free) override {
+		root.removeProxy(proxy);
+		if (free) delete proxy;
+	}
+
+	void clear() override { root.clear(); }
+
+	std::vector<Proxy*> queryRange(const int x, const int y, const int radius) override {
+		std::vector<Broadphase::Proxy*> hits;
+		root.queryRange(x, y, radius, hits);
+		return hits;
+	}
 };
 
 #endif // QUADTREE_H

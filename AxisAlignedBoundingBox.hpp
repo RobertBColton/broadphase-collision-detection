@@ -2,7 +2,7 @@
  * @file AxisAlignedBoundingBox.hpp
  * @brief Implements a class for axis-aligned bounding box representation.
  * @section License
- * Copyright (C) 2017 Robert Colton
+ * Copyright (C) 2017, 2020 Robert Colton
  * License pending. All rights reserved.
  */
 
