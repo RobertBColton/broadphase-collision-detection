@@ -3,6 +3,8 @@
 
 #include "Broadphase.hpp"
 
+#include <unordered_set>
+
 class Quadtree : public Broadphase
 {
 	struct Node {
