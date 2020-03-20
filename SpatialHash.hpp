@@ -139,18 +139,36 @@ public:
 
 	const std::unordered_set<CollisionPair, CollisionPairHash> queryCollisionPairs() {
 		std::unordered_set<CollisionPair, CollisionPairHash> collisionPairs;
-		/*
 		for (const auto &cell : cells) {
-			for (auto proxyIt = cell.second.cbegin(); proxyIt != cell.second.cend();) {
+			const auto& origin = cell.second.first;
+			const auto& foreign = cell.second.second;
+
+			for (auto proxyIt = origin.cbegin(); proxyIt != origin.cend();) {
 				const auto &proxy = *proxyIt;
-				for (auto otherIt = ++proxyIt; otherIt != cell.second.cend(); ++otherIt) {
+				// compare to all other origin proxies
+				for (auto otherIt = ++proxyIt; otherIt != origin.cend(); ++otherIt) {
+					const auto &other = *otherIt;
+					if (proxy->aabb.intersectsAABB(other->aabb))
+						collisionPairs.insert(CollisionPair(proxy->userdata, other->userdata));
+				}
+				// compare to all foreign proxies
+				for (auto otherIt = foreign.cbegin(); otherIt != foreign.cend(); ++otherIt) {
+					const auto &other = *otherIt;
+					if (proxy->aabb.intersectsAABB(other->aabb))
+						collisionPairs.insert(CollisionPair(proxy->userdata, other->userdata));
+				}
+			}
+
+			// compare all foreign proxies to each other
+			for (auto proxyIt = foreign.cbegin(); proxyIt != foreign.cend();) {
+				const auto &proxy = *proxyIt;
+				for (auto otherIt = ++proxyIt; otherIt != foreign.cend(); ++otherIt) {
 					const auto &other = *otherIt;
 					if (proxy->aabb.intersectsAABB(other->aabb))
 						collisionPairs.insert(CollisionPair(proxy->userdata, other->userdata));
 				}
 			}
 		}
-		*/
 		return collisionPairs;
 	}
 
