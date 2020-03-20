@@ -44,7 +44,8 @@ class SpatialHash : public Broadphase {
 	};
 
 	int cell_width, cell_height;
-	std::unordered_map<Point, std::vector<Proxy*>, PointHash> cells;
+	using CellBucket = std::pair<std::vector<Proxy*>,std::vector<Proxy*>>;
+	std::unordered_map<Point, CellBucket, PointHash> cells;
 
 public:
 	SpatialHash() : cell_width(64), cell_height(64) {};
@@ -74,7 +75,7 @@ public:
 
 	Proxy* addPoint(const int x, const int y, void *const userdata) {
 		Proxy* proxy = new Proxy(AABB(x, y, 1, 1), userdata);
-		cells[Point(x / cell_width, y / cell_height)].push_back(proxy);
+		cells[Point(x / cell_width, y / cell_height)].first.push_back(proxy);
 		return proxy;
 	}
 
@@ -83,7 +84,10 @@ public:
 		int xx = x / cell_width, yy = y / cell_height;
 		for (int i = xx; i < ((x + width) / cell_width) + 1; ++i) {
 			for (int ii = yy; ii < ((y + height) / cell_height) + 1; ++ii) {
-				cells[Point(i, ii)].push_back(proxy);
+				auto& cell = cells[Point(i, ii)];
+				const bool origin = (i == xx && ii == yy);
+				auto& cellProxies = origin ? cell.first : cell.second;
+				cellProxies.push_back(proxy);
 			}
 		}
 		return proxy;
@@ -101,8 +105,10 @@ public:
 		for (int i = xx; i < ((x + width) / cell_width) + 1; ++i) {
 			for (int ii = yy; ii < ((y + height) / cell_height) + 1; ++ii) {
 				auto& cell = cells[Point(i, ii)];
-				const auto it = std::find(cell.begin(), cell.end(), proxy);
-				cell.erase(it);
+				const bool origin = (i == xx && ii == yy);
+				auto& cellProxies = origin ? cell.first : cell.second;
+				const auto it = std::find(cellProxies.begin(), cellProxies.end(), proxy);
+				cellProxies.erase(it);
 			}
 		}
 		if (free) delete proxy;
@@ -113,7 +119,12 @@ public:
 		const int xx = (x - radius) / cell_width, yy = (y - radius) / cell_height;
 		for (int i = xx; i < ((x + radius) / cell_width) + 1; ++i) {
 			for (int ii = yy; ii < ((y + radius) / cell_height) + 1; ++ii) {
-				for (auto proxy : cells[Point(i, ii)]) {
+				auto& cell = cells[Point(i, ii)];
+				for (auto proxy : cell.first) {
+					if (proxy->aabb.intersectsCircle(x, y, radius))
+						hits.push_back(proxy);
+				}
+				for (auto proxy : cell.second) {
 					auto px = proxy->aabb.getX() / cell_width,
 							 py = proxy->aabb.getY() / cell_height;
 					// already looked at this proxy?
@@ -128,6 +139,7 @@ public:
 
 	const std::unordered_set<CollisionPair, CollisionPairHash> queryCollisionPairs() {
 		std::unordered_set<CollisionPair, CollisionPairHash> collisionPairs;
+		/*
 		for (const auto &cell : cells) {
 			for (auto proxyIt = cell.second.cbegin(); proxyIt != cell.second.cend();) {
 				const auto &proxy = *proxyIt;
@@ -138,20 +150,15 @@ public:
 				}
 			}
 		}
+		*/
 		return collisionPairs;
 	}
 
 	void clear() {
-		for (auto& cell : cells) {
-			for (auto proxy : cell.second) {
-				const int px = proxy->aabb.getX() / cell_width,
-									py = proxy->aabb.getY() / cell_height;
-				// already deleted this proxy?
-				if (cell.first.x != px || cell.first.y != py) continue;
+		for (auto& cell : cells)
+			for (auto proxy : cell.second.first)
 				delete proxy;
-			}
-		}
-		std::unordered_map<Point, std::vector<Proxy*>, PointHash>().swap(cells);
+		std::unordered_map<Point, CellBucket, PointHash>().swap(cells);
 	}
 };
 
