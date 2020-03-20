@@ -55,11 +55,11 @@ class Quadtree : public Broadphase
 			}
 		}
 
-		void queryRange(const int x, const int y, const int radius, std::unordered_set<Proxy*>& hits) {
+		void queryRange(const int x, const int y, const int radius, std::vector<Proxy*>& hits) {
 			if (!aabb.intersectsCircle(x, y, radius)) return;
 			for (auto child : children)
 				if (child->aabb.intersectsCircle(x, y, radius))
-					hits.insert(child);
+					hits.push_back(child);
 			if (NW) {
 				NW->queryRange(x, y, radius, hits);
 				NE->queryRange(x, y, radius, hits);
@@ -79,7 +79,7 @@ public:
 	Proxy* addProxy(Proxy* proxy) override;
 	void removeProxy(Proxy* proxy, bool free) override;
 	void clear() override;
-	std::unordered_set<Proxy*> queryRange(const int x, const int y, const int radius) override;
+	std::vector<Proxy*> queryRange(const int x, const int y, const int radius) override;
 };
 
 #endif // QUADTREE_H

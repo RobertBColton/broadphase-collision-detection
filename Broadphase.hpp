@@ -32,7 +32,7 @@ public:
 		addProxy(proxy);
 	}
 	virtual void clear() = 0;
-	virtual std::unordered_set<Proxy*> queryRange(const int x, const int y, const int radius) = 0;
+	virtual std::vector<Proxy*> queryRange(const int x, const int y, const int radius) = 0;
 };
 
 #endif // BROADPHASE_H

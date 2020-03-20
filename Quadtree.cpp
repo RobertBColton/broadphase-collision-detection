@@ -32,8 +32,8 @@ void Quadtree::clear() {
 	root.clear();
 }
 
-std::unordered_set<Broadphase::Proxy*> Quadtree::queryRange(const int x, const int y, const int radius) {
-	std::unordered_set<Broadphase::Proxy*> hits;
+std::vector<Broadphase::Proxy*> Quadtree::queryRange(const int x, const int y, const int radius) {
+	std::vector<Broadphase::Proxy*> hits;
 	root.queryRange(x, y, radius, hits);
 	return hits;
 }
