@@ -141,12 +141,15 @@ public:
 	}
 
 	void clear() {
-		std::unordered_set<Proxy*> unique;
-		for (auto& cell : cells)
-			for (auto proxy : cell.second)
-				unique.insert(proxy);
-		for (auto proxy : unique)
-			delete proxy;
+		for (auto& cell : cells) {
+			for (auto proxy : cell.second) {
+				const int px = proxy->aabb.getX() / cell_width,
+									py = proxy->aabb.getY() / cell_height;
+				// already deleted this proxy?
+				if (cell.first.x != px || cell.first.y != py) continue;
+				delete proxy;
+			}
+		}
 		std::unordered_map<Point, std::vector<Proxy*>, PointHash>().swap(cells);
 	}
 };
