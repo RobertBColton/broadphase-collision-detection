@@ -46,12 +46,7 @@ double benchmark(std::function<void(bool,bool)> fnc,
 	return avgTime;
 }
 
-using FinalizeProxy = std::function<Broadphase::Proxy*(Broadphase*,const AABB&)>;
-using CreateRandom = std::function<std::vector<Broadphase::Proxy*>(Broadphase*,FinalizeProxy)>;
-
-auto addAABB = [](Broadphase* bp, const AABB& aabb) {
-	return bp->addProxy(aabb);
-};
+using CreateRandom = std::function<std::vector<AABB>(void)>;
 
 QTableWidgetItem* createTimeCellItem(double time) {
 	auto item = new QTableWidgetItem();
@@ -88,8 +83,8 @@ int main(int argc, char *argv[])
 	};
 	QList<size_t> base_sizes = { pruneSweepSize, quadtreeSize, spatialHashSize };
 
-	auto createRandomDense = [=](Broadphase* bp, FinalizeProxy finalizeProxy = addAABB) {
-		std::vector<Broadphase::Proxy*> proxies;
+	auto createRandomDense = []() {
+		std::vector<AABB> aabbs;
 		for (int i = 0; i < 10000; ++i) {
 			const int width = randomInt(4, 32),
 								height = randomInt(4, 32);
@@ -97,14 +92,13 @@ int main(int argc, char *argv[])
 														 randomInt(-height, 1024),
 														 width,
 														 height);
-			auto proxy = finalizeProxy(bp, aabb);
-			proxies.push_back(proxy);
+			aabbs.emplace_back(aabb);
 		}
-		return proxies;
+		return aabbs;
 	};
 
-	auto createRandomSparse = [=](Broadphase* bp, FinalizeProxy finalizeProxy = addAABB){
-		std::vector<Broadphase::Proxy*> proxies;
+	auto createRandomSparse = [](){
+		std::vector<AABB> aabbs;
 		for (int c = 0; c < 10; ++c) {
 			int cx = randomInt(0, 1024);
 			int cy = randomInt(0, 1024);
@@ -114,11 +108,10 @@ int main(int argc, char *argv[])
 				const auto aabb = AABB(cx + randomInt(-std::min(32, width), 0),
 															 cy + randomInt(-std::min(32, height), 0),
 															 width, height);
-				auto proxy = finalizeProxy(bp, aabb);
-				proxies.push_back(proxy);
+				aabbs.emplace_back(aabb);
 			}
 		}
-		return proxies;
+		return aabbs;
 	};
 
 	bmButton->connect(bmButton, &QAbstractButton::clicked, [&](){
@@ -145,14 +138,18 @@ int main(int argc, char *argv[])
 			auto benchmarkBroadphase =
 				[&](CreateRandom createRandom, int row) {
 					std::vector<Broadphase::Proxy*> proxies;
+					std::vector<AABB> aabbs = createRandom();
 					size_t memory = 0;
 					double insert = benchmark(
-						[&](bool, bool){
+						[&](bool, bool finalRun){
 							allocated_bytes = 0;
-							proxies = createRandom(bpi.second.get(), addAABB);
+							for (const auto& aabb : aabbs) {
+								const auto proxy = bpi.second->addProxy(aabb);
+								if (finalRun) proxies.push_back(proxy);
+							}
 							memory = allocated_bytes;
 						},
-						[=](bool, bool){
+						[&](bool, bool){
 							bpi.second->clear();
 						}
 					);
@@ -164,12 +161,10 @@ int main(int argc, char *argv[])
 						}
 					});
 					double update = benchmark([=](bool, bool) {
-						int proxyId = 0;
-						createRandom(bpi.second.get(), [&](Broadphase* bp, const AABB& aabb){
-							const auto proxy = proxies[proxies.size() - ++proxyId];
-							bp->updateProxy(proxy, aabb);
-							return proxy;
-						});
+						size_t aabbId = aabbs.size();
+						for (auto proxy : proxies) {
+							bpi.second->updateProxy(proxy, aabbs[--aabbId]);
+						}
 					});
 					double clear = benchmark(
 						[=](bool, bool){
@@ -177,7 +172,10 @@ int main(int argc, char *argv[])
 						},
 						[](bool, bool){},
 						[&](bool, bool finalRun){
-							if (!finalRun) createRandom(bpi.second.get(), addAABB);
+							if (!finalRun) {
+								for (const auto& aabb : aabbs)
+									bpi.second->addProxy(aabb);
+							}
 						}
 					);
 					double remove = benchmark(
@@ -186,7 +184,9 @@ int main(int argc, char *argv[])
 								bpi.second->removeProxy(proxy);
 						},
 						[&](bool, bool){
-							proxies = createRandom(bpi.second.get(), addAABB);
+							std::vector<Broadphase::Proxy*>().swap(proxies);
+							for (const auto& aabb : aabbs)
+								proxies.push_back(bpi.second->addProxy(aabb));
 						}
 					);
 
