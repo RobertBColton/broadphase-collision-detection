@@ -23,7 +23,7 @@ struct Point {
 
 	friend inline bool operator==(Point const& lhs, Point const& rhs)
 	{
-		return (lhs.x == rhs.x) && (lhs.y == lhs.y);
+		return (lhs.x == rhs.x) && (lhs.y == rhs.y);
 	}
 };
 
