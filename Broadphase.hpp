@@ -9,7 +9,7 @@
 #ifndef BROADPHASE_H
 #define BROADPHASE_H
 
-#include "AxisAlignedBoundingBox.hpp"
+#include "AABB.hpp"
 
 #include <vector>
 

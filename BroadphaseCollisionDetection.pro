@@ -17,7 +17,7 @@ SOURCES += main.cpp \
     MainWindow.cpp
 
 HEADERS  += \
-    AxisAlignedBoundingBox.hpp \
+    AABB.hpp \
     Broadphase.hpp \
     MainWindow.hpp \
     Quadtree.hpp \

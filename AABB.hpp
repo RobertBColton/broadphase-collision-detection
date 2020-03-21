@@ -1,13 +1,13 @@
 /**
- * @file AxisAlignedBoundingBox.hpp
+ * @file AABB.hpp
  * @brief Implements a class for axis-aligned bounding box representation.
  * @section License
  * Copyright (C) 2017, 2020 Robert Colton
  * License pending. All rights reserved.
  */
 
-#ifndef AXISALIGNEDBOUNDINGBOX_HPP
-#define AXISALIGNEDBOUNDINGBOX_HPP
+#ifndef AABB_HPP
+#define AABB_HPP
 
 #include <algorithm>
 
@@ -82,4 +82,4 @@ public:
 	}
 };
 
-#endif // AXISALIGNEDBOUNDINGBOX_HPP
+#endif // AABB_HPP
