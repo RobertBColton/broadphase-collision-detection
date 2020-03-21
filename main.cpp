@@ -6,6 +6,16 @@
 #include <QtWidgets>
 
 #include <algorithm>
+#include <cstdlib>
+
+static size_t allocated_bytes = 0;
+
+void * operator new(size_t size)
+{
+	allocated_bytes += size;
+	void * p = std::malloc(size);
+	return p;
+}
 
 static int randomInt(int low, int high) {
 	return rand() % ((high + 1) - low) + low;
@@ -42,6 +52,13 @@ auto addAABB = [](Broadphase* bp, const AABB& aabb) {
 	return bp->addProxy(aabb);
 };
 
+QTableWidgetItem* createTimeCellItem(double time) {
+	auto item = new QTableWidgetItem();
+	item->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
+	item->setText(QString::number(time, 'f', 2));
+	return item;
+}
+
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
@@ -53,11 +70,19 @@ int main(int argc, char *argv[])
 	QPushButton *bmButton = new QPushButton("Benchmark");
 	vbl->addWidget(bmButton);
 
+	allocated_bytes = 0;
+	auto quadtree = new Quadtree();
+	const size_t quadtreeSize = allocated_bytes;
+	allocated_bytes = 0;
+	auto spatialHash = new SpatialHash();
+	const size_t spatialHashSize = allocated_bytes;
+
 	QList<QPair<QString, QSharedPointer<Broadphase>>> bpis = {
 		{"Prune Sweep",QSharedPointer<Broadphase>(new Quadtree())},
-		{"Quadtree",QSharedPointer<Broadphase>(new Quadtree())},
-		{"Spatial Hash",QSharedPointer<Broadphase>(new SpatialHash())},
+		{"Quadtree",QSharedPointer<Broadphase>(quadtree)},
+		{"Spatial Hash",QSharedPointer<Broadphase>(spatialHash)},
 	};
+	QList<size_t> base_sizes = { quadtreeSize, quadtreeSize, spatialHashSize };
 
 	auto createRandomDense = [=](Broadphase* bp, FinalizeProxy finalizeProxy = addAABB) {
 		std::vector<Broadphase::Proxy*> proxies;
@@ -114,17 +139,19 @@ int main(int argc, char *argv[])
 			benchmarkTable->setVerticalHeaderItem(bpis.size() + i + 2, new QTableWidgetItem(bpi.first));
 
 			auto benchmarkBroadphase =
-				[=](CreateRandom createRandom, int row) {
+				[&](CreateRandom createRandom, int row) {
 					std::vector<Broadphase::Proxy*> proxies;
+					size_t memory = 0;
 					double insert = benchmark(
 						[&](bool, bool){
+							allocated_bytes = 0;
 							proxies = createRandom(bpi.second.get(), addAABB);
+							memory = allocated_bytes;
 						},
 						[=](bool, bool){
 							bpi.second->clear();
 						}
 					);
-					size_t memory = sizeof(bpi.second);
 					double query = benchmark([=](bool, bool) {
 						for (int i = 0; i < 100; ++i) {
 							bpi.second->queryRange(randomInt(0, 1024),
@@ -159,12 +186,15 @@ int main(int argc, char *argv[])
 						}
 					);
 
-					benchmarkTable->setItem(row, 0, new QTableWidgetItem(QString::number(memory)));
-					benchmarkTable->setItem(row, 1, new QTableWidgetItem(QString::number(insert)));
-					benchmarkTable->setItem(row, 2, new QTableWidgetItem(QString::number(query)));
-					benchmarkTable->setItem(row, 3, new QTableWidgetItem(QString::number(update)));
-					benchmarkTable->setItem(row, 4, new QTableWidgetItem(QString::number(clear)));
-					benchmarkTable->setItem(row, 5, new QTableWidgetItem(QString::number(remove)));
+					memory += base_sizes[i];
+					auto memoryItem = new QTableWidgetItem(benchmarkTable->locale().formattedDataSize(memory));
+					memoryItem->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
+					benchmarkTable->setItem(row, 0, memoryItem);
+					benchmarkTable->setItem(row, 1, createTimeCellItem(insert));
+					benchmarkTable->setItem(row, 2, createTimeCellItem(query));
+					benchmarkTable->setItem(row, 3, createTimeCellItem(update));
+					benchmarkTable->setItem(row, 4, createTimeCellItem(clear));
+					benchmarkTable->setItem(row, 5, createTimeCellItem(remove));
 				};
 
 			benchmarkBroadphase(createRandomDense, i + 1);
