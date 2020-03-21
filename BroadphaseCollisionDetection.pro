@@ -20,6 +20,7 @@ HEADERS  += \
     AABB.hpp \
     Broadphase.hpp \
     MainWindow.hpp \
+    PruneSweep.hpp \
     Quadtree.hpp \
     SpatialHash.hpp
 

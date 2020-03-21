@@ -2,6 +2,7 @@
 #include "Broadphase.hpp"
 #include "Quadtree.hpp"
 #include "SpatialHash.hpp"
+#include "PruneSweep.hpp"
 
 #include <QtWidgets>
 
@@ -76,13 +77,16 @@ int main(int argc, char *argv[])
 	allocated_bytes = 0;
 	auto spatialHash = new SpatialHash();
 	const size_t spatialHashSize = allocated_bytes;
+	allocated_bytes = 0;
+	auto pruneSweep = new PruneSweep();
+	const size_t pruneSweepSize = allocated_bytes;
 
 	QList<QPair<QString, QSharedPointer<Broadphase>>> bpis = {
-		{"Prune Sweep",QSharedPointer<Broadphase>(new Quadtree())},
+		{"Prune Sweep",QSharedPointer<Broadphase>(pruneSweep)},
 		{"Quadtree",QSharedPointer<Broadphase>(quadtree)},
 		{"Spatial Hash",QSharedPointer<Broadphase>(spatialHash)},
 	};
-	QList<size_t> base_sizes = { quadtreeSize, quadtreeSize, spatialHashSize };
+	QList<size_t> base_sizes = { pruneSweepSize, quadtreeSize, spatialHashSize };
 
 	auto createRandomDense = [=](Broadphase* bp, FinalizeProxy finalizeProxy = addAABB) {
 		std::vector<Broadphase::Proxy*> proxies;
