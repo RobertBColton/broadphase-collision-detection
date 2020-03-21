@@ -6,8 +6,8 @@
  * License pending. All rights reserved.
  */
 
-#ifndef BROADPHASE_H
-#define BROADPHASE_H
+#ifndef BROADPHASE_HPP
+#define BROADPHASE_HPP
 
 #include "AABB.hpp"
 
@@ -43,4 +43,4 @@ public:
 	virtual std::vector<Proxy*> queryRange(const int x, const int y, const int radius) = 0;
 };
 
-#endif // BROADPHASE_H
+#endif // BROADPHASE_HPP

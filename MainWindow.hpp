@@ -1,8 +1,9 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef MAINWINDOW_HPP
+#define MAINWINDOW_HPP
+
+#include "Broadphase.hpp"
 
 #include <QtWidgets>
-#include "Broadphase.hpp"
 
 #include <vector>
 

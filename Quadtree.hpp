@@ -6,8 +6,8 @@
  * License pending. All rights reserved.
  */
 
-#ifndef QUADTREE_H
-#define QUADTREE_H
+#ifndef QUADTREE_HPP
+#define QUADTREE_HPP
 
 #include "Broadphase.hpp"
 
@@ -120,4 +120,4 @@ public:
 	}
 };
 
-#endif // QUADTREE_H
+#endif // QUADTREE_HPP

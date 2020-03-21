@@ -6,8 +6,8 @@
  * License pending. All rights reserved.
  */
 
-#ifndef SPARSESPATIALBROADPHASE_H
-#define SPARSESPATIALBROADPHASE_H
+#ifndef SPARSESPATIALBROADPHASE_HPP
+#define SPARSESPATIALBROADPHASE_HPP
 
 #include "Broadphase.hpp"
 
