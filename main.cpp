@@ -54,8 +54,7 @@ int main(int argc, char *argv[])
 	vbl->addWidget(bmButton);
 
 	QList<QPair<QString, QSharedPointer<Broadphase>>> bpis = {
-		{"K-D Tree",QSharedPointer<Broadphase>(new Quadtree())},
-		{"K-D-B Tree",QSharedPointer<Broadphase>(new Quadtree())},
+		{"Prune Sweep",QSharedPointer<Broadphase>(new Quadtree())},
 		{"Quadtree",QSharedPointer<Broadphase>(new Quadtree())},
 		{"Spatial Hash",QSharedPointer<Broadphase>(new SpatialHash())},
 	};
