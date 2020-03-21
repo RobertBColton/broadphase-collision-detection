@@ -6,8 +6,8 @@
  * License pending. All rights reserved.
  */
 
-#ifndef SPARSESPATIALBROADPHASE_HPP
-#define SPARSESPATIALBROADPHASE_HPP
+#ifndef SPATIALHASH_HPP
+#define SPATIALHASH_HPP
 
 #include "Broadphase.hpp"
 
@@ -180,4 +180,4 @@ public:
 	}
 };
 
-#endif // SPARSESPATIALBROADPHASE_HPP
+#endif // SPATIALHASH_HPP
