@@ -174,6 +174,7 @@ int main(int argc, char *argv[])
 									const auto& speed = speeds[--aabbId % speeds.size()];
 									aabb.setPosition(aabb.getX() + speed.first,
 																	 aabb.getY() + speed.second);
+									aabb.warp(AABB(0, 0, 1024, 1024));
 									bpi.second->updateProxy(proxy, aabb);
 								}
 							}

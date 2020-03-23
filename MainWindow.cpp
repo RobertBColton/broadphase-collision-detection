@@ -69,26 +69,17 @@ void MainWindow::updateGame() {
 
 		// move the object around
 		QPointF velocity = object->data(0).toPointF();
-		object->moveBy(velocity.x(), velocity.y());
-		if (object->x() < -object->boundingRect().width()) {
-			object->setX(scene->width());
-		} else if (object->x() > scene->width()) {
-			object->setX(-object->boundingRect().width());
-		}
-		if (object->y() < -object->boundingRect().height()) {
-			object->setY(scene->height());
-		} else if (object->y() > scene->height()) {
-			object->setY(-object->boundingRect().height());
-		}
+		auto aabb = proxy->aabb;
+		aabb.setPosition(aabb.getX() + velocity.x(),
+										 aabb.getY() + velocity.y());
+		aabb.warp(AABB(0, 0, 1024, 1024));
+		object->setPos(aabb.getX(), aabb.getY());
 
 		// reset its color until we see if it collided with the player
 		object->setBrush(Qt::darkCyan);
 		object->setPen(QPen(Qt::black));
 
-		broadphase->updateProxy(
-			proxy,
-			AABB(object->x(),object->y(),
-					 object->boundingRect().width(),object->boundingRect().height()));
+		broadphase->updateProxy(proxy, aabb);
 	}
 
 	// now query the cursor and change the color of objects

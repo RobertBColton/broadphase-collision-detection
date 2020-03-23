@@ -24,6 +24,15 @@ public:
 	int getWidth() const { return width; }
 	int getHeight() const { return height; }
 
+	void warp(const AABB& aabb) {
+		const int right = aabb.getX() + aabb.getWidth(),
+							bottom = aabb.getY() + aabb.getHeight();
+		if (x + width < aabb.getX()) setX(right);
+		else if (x > right) setX(aabb.getX() - width);
+		if (y + height < aabb.getY()) setY(bottom);
+		else if (y > bottom) setY(aabb.getY() - height);
+	}
+
 	void setPosition(const int x, const int y) {
 		this->x = x;
 		this->y = y;
