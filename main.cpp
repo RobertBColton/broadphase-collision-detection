@@ -138,44 +138,64 @@ int main(int argc, char *argv[])
 			auto benchmarkBroadphase =
 				[&](CreateRandom createRandom, int row) {
 					std::vector<Broadphase::Proxy*> proxies;
-					std::vector<AABB> aabbs = createRandom();
+					std::vector<AABB> aabbs;
+					std::vector<std::pair<int,int>> speeds;
 					size_t memory = 0;
 					double insert = benchmark(
-						[&](bool, bool finalRun){
+						[&](bool, bool){
 							allocated_bytes = 0;
 							for (const auto& aabb : aabbs) {
-								const auto proxy = bpi.second->addProxy(aabb);
-								if (finalRun) proxies.push_back(proxy);
+								bpi.second->addProxy(aabb);
 							}
 							memory = allocated_bytes;
 						},
-						[&](bool, bool){
+						[&](bool firstRun, bool){
+							if (firstRun) {
+								aabbs = createRandom();
+								for (int i = 0; i < 32; ++i)
+									speeds.push_back({randomInt(-5,5),randomInt(-5,5)});
+							}
 							bpi.second->clear();
 						}
 					);
 					double query = benchmark([=](bool, bool) {
-						for (int i = 0; i < 100; ++i) {
-							bpi.second->queryRange(randomInt(0, 1024),
-																		 randomInt(0, 1024),
-																		 randomInt(2, 240));
+							for (int i = 0; i < 100; ++i) {
+								bpi.second->queryRange(randomInt(0, 1024),
+																			 randomInt(0, 1024),
+																			 randomInt(2, 240));
+							}
 						}
-					});
-					double update = benchmark([=](bool, bool) {
-						size_t aabbId = aabbs.size();
-						for (auto proxy : proxies) {
-							bpi.second->updateProxy(proxy, aabbs[--aabbId]);
+					);
+					double update = benchmark([&](bool, bool) {
+							for (int i = 0; i < 60; ++i) {
+								size_t aabbId = aabbs.size();
+								for (auto proxy : proxies) {
+									auto aabb = proxy->aabb;
+									const auto& speed = speeds[--aabbId % speeds.size()];
+									aabb.setPosition(aabb.getX() + speed.first,
+																	 aabb.getY() + speed.second);
+									bpi.second->updateProxy(proxy, aabb);
+								}
+							}
+						},
+						[&](bool,bool){
+							bpi.second->clear();
+							std::vector<Broadphase::Proxy*>().swap(proxies);
+							for (const auto& aabb : aabbs) {
+								auto proxy = bpi.second->addProxy(aabb);
+								if (!proxy) break; // TODO: Throw out after prune juice
+								proxies.push_back(proxy);
+							}
 						}
-					});
+					);
 					double clear = benchmark(
 						[=](bool, bool){
 							bpi.second->clear();
 						},
-						[](bool, bool){},
-						[&](bool, bool finalRun){
-							if (!finalRun) {
-								for (const auto& aabb : aabbs)
-									bpi.second->addProxy(aabb);
-							}
+						[&](bool, bool){
+							bpi.second->clear();
+							for (const auto& aabb : aabbs)
+								bpi.second->addProxy(aabb);
 						}
 					);
 					double remove = benchmark(
